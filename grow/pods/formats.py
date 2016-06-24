@@ -39,6 +39,7 @@ class Format(object):
         self.locale_from_path = None
         self.content = self._init_content(self.pod_path)
         self._has_front_matter = Format.has_front_matter(self.content)
+        self._locales_from_parts = []
         self.fields = {}
         self.load()
 
@@ -135,6 +136,10 @@ class Format(object):
     def load(self):
         raise NotImplementedError
 
+    @property
+    def has_localized_parts(self):
+        return bool(self._locales_from_parts)
+
 
 class _SplitDocumentFormat(Format):
 
@@ -201,6 +206,8 @@ class _SplitDocumentFormat(Format):
             for part_locale in self._get_locales_of_part(fields):
                 locales_to_fields[part_locale] = fields
                 locales_to_bodies[part_locale] = body
+                if part_locale:
+                    self._locales_from_parts.append(part_locale)
 
         # Allow $locale to override base locale.
         if locale is None and base_default_locale:
